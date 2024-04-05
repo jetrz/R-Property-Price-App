@@ -78,8 +78,6 @@ CondoPriceByAreaBox <- function() {
         scale_y_continuous(trans = "log")  # Use log-scale for y-axis if needed
 }
 
-CondoPriceByAre
-
 mean_prices_by_district_condo <- mean_prices_by_district_condo %>%
   mutate(source = "Condo")
 
