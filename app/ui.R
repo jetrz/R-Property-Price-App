@@ -10,7 +10,6 @@ library(kableExtra)
 
 condodata <- read.csv("data/condo.csv")
 hdbdata <- read.csv("data/hdb.csv")
-combinedData <- read.csv("data/combined.csv")
 
 orderedStoryRange <- c("01 TO 03","04 TO 06","07 TO 09","10 TO 12","13 TO 15","16 TO 18","19 TO 21","22 TO 24","25 TO 27","28 TO 30","31 TO 33","34 TO 36","37 TO 39","40 TO 42","43 TO 45","46 TO 48","49 TO 51")
 
@@ -84,7 +83,7 @@ ui <- dashboardPage(
       tabItem(tabName = "resale_visualisations",
               h2("Resale Flats Price Visualisation"),
                   selectInput("townSelect", "Select Town(s):", 
-                              choices = c("All" = "All", unique(combinedData$town)),selected = "All", multiple = TRUE),
+                              choices = c("All" = "All", unique(hdbdata$town)),selected = "All", multiple = TRUE),
                   actionButton("clearTown", "Clear Town Selection"),
                   selectInput("storyRangeSelect", "Select Story Range(s):", 
                               choices = c("All"="All", orderedStoryRange),selected = "All", multiple = TRUE),

@@ -7,10 +7,9 @@ library(dplyr)
 
 condodata <- read.csv("data/condo.csv")
 hdbdata <- read.csv("data/hdb.csv")
-combinedData <- read.csv("data/combined.csv")
 
 ResaleMeanPriceByArea <- function(townSelect, storyRangeSelect) {
-    filteredData <- combinedData
+    filteredData <- hdbdata
     
     # Filter by selected towns, ignoring "All" if other towns are selected
     if (!"All" %in% townSelect || length(townSelect) > 1) {
