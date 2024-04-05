@@ -1,5 +1,4 @@
 # install.packages(c("shiny", "jsonlite", "ggplot2", "ggmap", "shinydashboard", "leaflet", "sf", "dplyr", "plotly", "kableExtra", "tidyverse", "readxl"))
-
 library(shiny)
 library(shinydashboard)
 library(stringr)
@@ -81,6 +80,38 @@ ui <- dashboardPage(
                 )
               )
       ),
+      # Resale Flats Price Visualisation tab
+      tabItem(tabName = "resale_visualisations",
+              h2("Resale Flats Price Visualisation"),
+                  selectInput("townSelect", "Select Town(s):", 
+                              choices = c("All" = "All", unique(combinedData$town)),selected = "All", multiple = TRUE),
+                  actionButton("clearTown", "Clear Town Selection"),
+                  selectInput("storyRangeSelect", "Select Story Range(s):", 
+                              choices = c("All"="All", orderedStoryRange),selected = "All", multiple = TRUE),
+                  actionButton("clearStoryRange", "Clear Story Range Selection"),
+
+                  plotOutput("pricePlot")
+                
+      ),
+      # Amenities Tab
+      tabItem(tabName = "amenities",
+              radioButtons("amenityType", "Choose Amenity Type:",
+                   choices = c("All", "Bus Stops", "MRT Stops", "Malls", "Hospitals")),
+              leafletOutput("map")
+      ),
+      # Data Visualisations tab
+      tabItem(tabName = "data_visualisations",
+              h2("Data Visualisations"),
+              p("This is the Data Visualisations page. You can add your visualizations here."),
+              p("Click the button to display the HDB Mean Price by Area graph."),
+              actionButton("HDBPriceByAreaBarButton", "HDB Prices By District & Region (Bar)"),
+              actionButton("CondoPriceByAreaBarButton", "Condo Prices By District & Region (Bar)"),
+              actionButton("CondoPriceByAreaBoxButton", "Condo Prices By District & Region (Box)"),
+              actionButton("HDBPriceByDistrictBarButton", "HDB Prices By District (Bar)"),
+              actionButton("ResalePriceByRegionDensityButton", "Resale Prices By Region (Density)"),
+              actionButton("RelLeaseDurResalePriceButton", "Relationship between Remaining Lease Duration & Resale Prices"),
+              plotOutput("plotArea")
+      ),
       # About tab
       tabItem(tabName = "about",
               h2("About"),
@@ -100,38 +131,6 @@ ui <- dashboardPage(
       tabItem(tabName = "faqs",
               h2("FAQs"),
               p("This is the FAQs page. You can add more content here.")
-      ),
-      # Data Visualisations tab
-      tabItem(tabName = "data_visualisations",
-              h2("Data Visualisations"),
-              p("This is the Data Visualisations page. You can add your visualizations here."),
-              p("Click the button to display the HDB Mean Price by Area graph."),
-              actionButton("HDBPriceByAreaBarButton", "HDB Prices By District & Region (Bar)"),
-              actionButton("CondoPriceByAreaBarButton", "Condo Prices By District & Region (Bar)"),
-              actionButton("CondoPriceByAreaBoxButton", "Condo Prices By District & Region (Box)"),
-              actionButton("HDBPriceByDistrictBarButton", "HDB Prices By District (Bar)"),
-              actionButton("ResalePriceByRegionDensityButton", "Resale Prices By Region (Density)"),
-              actionButton("RelLeaseDurResalePriceButton", "Relationship between Remaining Lease Duration & Resale Prices"),
-              plotOutput("plotArea")
-      ),
-      # Resale Flats Price Visualisation tab
-      tabItem(tabName = "resale_visualisations",
-              h2("Resale Flats Price Visualisation"),
-                  selectInput("townSelect", "Select Town(s):", 
-                              choices = c("All" = "All", unique(combinedData$town)),selected = "All", multiple = TRUE),
-                  actionButton("clearTown", "Clear Town Selection"),
-                  selectInput("storyRangeSelect", "Select Story Range(s):", 
-                              choices = c("All"="All", orderedStoryRange),selected = "All", multiple = TRUE),
-                  actionButton("clearStoryRange", "Clear Story Range Selection"),
-
-                  plotOutput("pricePlot")
-                
-      ),
-      # Amenities Tab
-      tabItem(tabName = "amenities",
-              radioButtons("amenityType", "Choose Amenity Type:",
-                   choices = c("All", "Bus Stops", "MRT Stops", "Malls", "Hospitals")),
-              leafletOutput("map")
       )
     )
   )
