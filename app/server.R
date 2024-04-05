@@ -30,6 +30,17 @@ property_data_hdb <- property_data_hdb %>%
     )
   )
 
+condo_data <- condo_data %>%
+  mutate(
+    region = case_when(
+      region == "CCR" ~ "Core Central Region (CCR)",
+      region == "RCR" ~ "Rest of Central Region (RCR)",
+      region == "OCR" ~ "Outside Central Region (OCR)",
+      TRUE ~ "Unknown"
+    )
+  )
+
+
 # Read in shapefile for polygons relating to URA postal districts
 districts <- st_read("data/district_polygons/district_polygons.shp", crs = 4326) 
 
@@ -51,9 +62,14 @@ shinyServer(function(input, output, session) {
   ##### PROPERTY FINDER TAB ######
   ################################
 
-  # Reactive expression to filter data based on selected region
-  filtered_data_region <- reactive({
+  # Reactive expressions to filter data based on selected region
+  filtered_data_region_hdb <- reactive({
     property_data_hdb %>%
+      filter(region == input$region_select)
+  })
+
+  filtered_data_region_condo <- reactive({
+    condo_data %>%
       filter(region == input$region_select)
   })
   
@@ -108,11 +124,18 @@ shinyServer(function(input, output, session) {
   # Render box plot for selected region
   output$region_boxplot <- renderPlot({
     req(input$update_plot)
-    filtered_data <- filtered_data_region()
+
+    if (input$property_type_selector == "HDB") {
+      filtered_data <- filtered_data_region_hdb()
+    } else {
+      filtered_data <- data.frame(filtered_data_region_condo())
+      filtered_data <- filtered_data %>% rename(resale_price=price)
+    }
+
     if (!is.null(filtered_data)) {
       ggplot(filtered_data, aes(x = resale_price)) +
         geom_boxplot() +
-        labs(title = paste("Average HDB Price in", input$region_select, "Region")) +
+        labs(title = paste("Average Price in", input$region_select, "Region")) +
         theme_minimal()
     }
   })
@@ -120,10 +143,18 @@ shinyServer(function(input, output, session) {
   # Render summary table for selected region
   output$summary_table <- renderTable({
     req(input$update_plot)
-    filtered_data <- filtered_data_region()
+
+    if (input$property_type_selector == "HDB") {
+      filtered_data <- filtered_data_region_hdb()
+    } else {
+      filtered_data <- data.frame(filtered_data_region_condo())
+      filtered_data <- filtered_data %>% rename(town=building, flat_type=type, resale_price=price)
+    }
+
     if (!is.null(filtered_data)) {
       # Subset the latest 10 transactions and select relevant columns
       latest_transactions <- head(filtered_data[order(filtered_data$month, decreasing = TRUE), ], 10)
+
       latest_transactions <- latest_transactions[, c("town", "month", "flat_type", "resale_price")]
       colnames(latest_transactions) <- c("Town", "Month", "Flat Type", "Resale Price")
       latest_transactions
@@ -246,8 +277,8 @@ shinyServer(function(input, output, session) {
   ################################
 
   # Observe click on Clear Town Selection button
-  observeEvent(input$clearTown, {
-    updateSelectInput(session, "townSelect", selected = "All")
+  observeEvent(input$clearTownHDB, {
+    updateSelectInput(session, "townSelectHDB", selected = "All")
   })
   
   # Observe click on Clear Story Range Selection button
@@ -255,8 +286,16 @@ shinyServer(function(input, output, session) {
     updateSelectInput(session, "storyRangeSelect", selected = "All")
   })
 
-  output$pricePlot <- renderPlot({
-    ResaleMeanPriceByArea(input$townSelect, input$storyRangeSelect)
+  output$hdbPricePlot <- renderPlot({
+    meanPriceByTown("HDB", input$townSelectHDB, input$storyRangeSelect)
+  })
+
+  observeEvent(input$clearTownCondo, {
+    updateSelectInput(session, "townSelectCondo", selected = "All")
+  })
+
+  output$condoPricePlot <- renderPlot({
+    meanPriceByTown("Condo", input$townSelectCondo, NULL)
   })
 
   ################################

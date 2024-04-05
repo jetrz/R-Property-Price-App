@@ -1,4 +1,5 @@
-# install.packages(c("shiny", "jsonlite", "ggplot2", "ggmap", "shinydashboard", "leaflet", "sf", "dplyr", "plotly", "kableExtra", "tidyverse", "readxl"))
+# install.packages(c("shiny", "jsonlite", "ggplot2", "ggmap", "shinydashboard", "leaflet", "sf", "dplyr", "plotly", "kableExtra", "tidyverse", "readxl", "rsconnect"))
+
 library(shiny)
 library(shinydashboard)
 library(stringr)
@@ -82,15 +83,27 @@ ui <- dashboardPage(
       # Resale Flats Price Visualisation tab
       tabItem(tabName = "resale_visualisations",
               h2("Resale Flats Price Visualisation"),
-                  selectInput("townSelect", "Select Town(s):", 
-                              choices = c("All" = "All", unique(hdbdata$town)),selected = "All", multiple = TRUE),
-                  actionButton("clearTown", "Clear Town Selection"),
-                  selectInput("storyRangeSelect", "Select Story Range(s):", 
-                              choices = c("All"="All", orderedStoryRange),selected = "All", multiple = TRUE),
-                  actionButton("clearStoryRange", "Clear Story Range Selection"),
+              radioButtons("property_type_selector_2", label = "Select Property Type",
+                          choices = c("HDB", "Condo"), selected = "HDB"),
 
-                  plotOutput("pricePlot")
-                
+              conditionalPanel(
+                condition = "input.property_type_selector_2 === 'HDB'",
+                selectInput("townSelectHDB", "Select Town(s):", 
+                          choices = c("All" = "All", unique(hdbdata$town)),selected = "All", multiple = TRUE),
+                actionButton("clearTownHDB", "Clear Town Selection"),
+                selectInput("storyRangeSelect", "Select Story Range(s):", 
+                            choices = c("All"="All", orderedStoryRange),selected = "All", multiple = TRUE),
+                actionButton("clearStoryRange", "Clear Story Range Selection"),
+                plotOutput("hdbPricePlot")
+              ),
+
+              conditionalPanel(
+                condition = "input.property_type_selector_2 === 'Condo'",
+                selectInput("townSelectCondo", "Select Town(s):", 
+                            choices = c("All" = "All", unique(condodata$district)),selected = "All", multiple = TRUE),
+                actionButton("clearTownCondo", "Clear Town Selection"),
+                plotOutput("condoPricePlot")
+              )
       ),
       # Amenities Tab
       tabItem(tabName = "amenities",
