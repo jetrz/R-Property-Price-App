@@ -4,11 +4,12 @@ library(tidyverse)
 library(shiny)
 library(ggplot2)
 library(dplyr)
+library(lubridate)
 
 condodata <- read.csv("data/condo.csv")
 hdbdata <- read.csv("data/hdb.csv")
 
-meanPriceByTown <- function(propertyType, townSelect, storyRangeSelect) {
+meanPriceByTown <- function(propertyType, townSelect, timeRange=NULL, storyRangeSelect=NULL) {
     if (propertyType == "HDB") {
         filteredData <- hdbdata
     } else {
@@ -18,18 +19,29 @@ meanPriceByTown <- function(propertyType, townSelect, storyRangeSelect) {
     
     # Filter by selected towns, ignoring "All" if other towns are selected
     if (!"All" %in% townSelect || length(townSelect) > 1) {
-    filteredData <- filteredData %>% filter(town %in% townSelect)
+        filteredData <- filteredData %>% filter(town %in% townSelect)
+    }
+
+    # Filter by time range
+    if (propertyType == "HDB") {
+        if (timeRange == "Year") {
+            filteredData <- filteredData %>% filter(date > Sys.Date() - years(1))
+        } else if (timeRange == "5 Years") {
+            filteredData <- filteredData %>% filter(date > Sys.Date() - years(5))
+        } else if (timeRange == "10 Years") {
+            filteredData <- filteredData %>% filter(date > Sys.Date() - years(10))
+        }
     }
     
     # Filter by selected story ranges, ignoring "All" if other ranges are selected
     if (propertyType == "HDB" && (!"All" %in% storyRangeSelect || length(storyRangeSelect) > 1)) {
-    filteredData <- filteredData %>% filter(storey_range %in% storyRangeSelect)
+        filteredData <- filteredData %>% filter(storey_range %in% storyRangeSelect)
     }
     
     # Generate the box plot with the filtered data
     ggplot(filteredData, aes(x = as.factor(town), y = resale_price)) +
-    geom_boxplot() +
-    theme_minimal() +
-    labs(title = "Resale Price Distribution", y = "Price", x = "Town") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        geom_boxplot() +
+        theme_minimal() +
+        labs(title = "Resale Price Distribution", y = "Price", x = "Town") +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
 }

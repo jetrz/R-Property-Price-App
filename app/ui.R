@@ -88,13 +88,15 @@ ui <- dashboardPage(
 
               conditionalPanel(
                 condition = "input.property_type_selector_2 === 'HDB'",
+                radioButtons("time_range_selector", label = "Select Time Range",
+                          choices = c("Year", "5 Years", "10 Years", "All"), selected = "All"),
                 selectInput("townSelectHDB", "Select Town(s):", 
                           choices = c("All" = "All", unique(hdbdata$town)),selected = "All", multiple = TRUE),
                 actionButton("clearTownHDB", "Clear Town Selection"),
                 selectInput("storyRangeSelect", "Select Story Range(s):", 
                             choices = c("All"="All", orderedStoryRange),selected = "All", multiple = TRUE),
                 actionButton("clearStoryRange", "Clear Story Range Selection"),
-                plotOutput("hdbPricePlot")
+                plotlyOutput("hdbPricePlot")
               ),
 
               conditionalPanel(
@@ -102,7 +104,7 @@ ui <- dashboardPage(
                 selectInput("townSelectCondo", "Select Town(s):", 
                             choices = c("All" = "All", unique(condodata$district)),selected = "All", multiple = TRUE),
                 actionButton("clearTownCondo", "Clear Town Selection"),
-                plotOutput("condoPricePlot")
+                plotlyOutput("condoPricePlot")
               )
       ),
       # Amenities Tab

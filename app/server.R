@@ -292,16 +292,18 @@ shinyServer(function(input, output, session) {
     updateSelectInput(session, "storyRangeSelect", selected = "All")
   })
 
-  output$hdbPricePlot <- renderPlot({
-    meanPriceByTown("HDB", input$townSelectHDB, input$storyRangeSelect)
+  output$hdbPricePlot <- renderPlotly({
+    p <- meanPriceByTown("HDB", input$townSelectHDB, timeRange=input$time_range_selector, storyRangeSelect=input$storyRangeSelect)
+    ggplotly(p, tooltip = c("y", "lower", "middle", "upper", "ymin", "ymax"))
   })
 
   observeEvent(input$clearTownCondo, {
     updateSelectInput(session, "townSelectCondo", selected = "All")
   })
 
-  output$condoPricePlot <- renderPlot({
-    meanPriceByTown("Condo", input$townSelectCondo, NULL)
+  output$condoPricePlot <- renderPlotly({
+    p <- meanPriceByTown("Condo", input$townSelectCondo)
+    ggplotly(p, tooltip = c("y", "lower", "middle", "upper", "ymin", "ymax"))
   })
 
   ################################
