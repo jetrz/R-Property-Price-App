@@ -122,6 +122,7 @@ ui <- dashboardPage(
               actionButton("HDBPriceByDistrictBarButton", "HDB Prices By District (Bar)"),
               actionButton("ResalePriceByRegionDensityButton", "Resale Prices By Region (Density)"),
               actionButton("RelLeaseDurResalePriceButton", "Relationship between Remaining Lease Duration & Resale Prices"),
+              actionButton("PriceByRegionAndSizeButton", "Mean Price by Region and Size"),
               plotOutput("plotArea")
       ),
       # About tab

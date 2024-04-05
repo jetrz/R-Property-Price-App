@@ -272,6 +272,12 @@ shinyServer(function(input, output, session) {
     })
   })
 
+  observeEvent(input$PriceByRegionAndSizeButton, {
+    output$plotArea <- renderPlot({
+      PriceByRegionAndSize()
+    })
+  })
+
   ################################
   ### RESALE VISUALISATION TAB ###
   ################################
