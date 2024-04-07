@@ -44,7 +44,8 @@ ui <- dashboardPage(
                        uiOutput("price_chart_ui"),
                        uiOutput("amenities_ui")
                 )
-              )
+              ),
+              h4("changed!")
       ),
       
       # Calculator tab
