@@ -1,0 +1,110 @@
+.navbar {
+    background-color: #343a40!important;
+}
+
+.logo {
+    background-color:#343a40!important;
+}
+
+.content-wrapper {
+    background-color: #FAF9F6!important;
+    background-image: url("bg/off-white-bg.jpg");
+    background-size: cover;
+    min-height: 100vh;
+}
+
+.box {
+    border-top: 4px solid #343a40!important;
+}
+
+
+
+.custom-button-1 {
+    border: 2px solid #343a40;
+    position: relative;
+    overflow: hidden;
+    background-color: transparent;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 14px;
+    transition: .3s;
+    z-index: 1;
+    font-family: inherit;
+    color: #343a40;
+    margin-bottom: 5px;
+}
+
+.custom-button-1::before {
+    content: '';
+    width: 0;
+    height: 300%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: #343a40;
+    transition: .5s ease;
+    display: block;
+    z-index: -1;
+}
+
+.custom-button-1:hover::before {
+    width: 105%;
+}
+
+.custom-button-1:hover {
+    color: #FFF;
+    background-color: #000!important;
+}
+
+
+   
+.select-property-radio .shiny-options-group {
+    width: 220px!important;
+}
+
+.radio-inputs .shiny-options-group {
+position: relative;
+display: flex;
+flex-wrap: wrap;
+border-radius: 0.5rem;
+background-color: #EEE;
+box-sizing: border-box;
+box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
+padding: 0.25rem;
+width: 300px;
+font-size: 14px;
+margin-top:0!important;
+}
+
+.radio-inputs .radio {
+flex: 1 1 auto;
+text-align: center;
+margin-top: auto!important;
+margin-bottom: auto!important;
+}
+
+.radio-inputs .radio input {
+display: none;
+}
+
+.radio-inputs .radio label {
+    padding-left: 0;
+}
+
+.radio-inputs .radio span {
+display: flex;
+cursor: pointer;
+align-items: center;
+justify-content: center;
+border-radius: 0.5rem;
+border: none;
+padding: .5rem 2rem;
+color: rgba(51, 65, 85, 1);
+transition: all .15s ease-in-out;
+}
+
+.radio-inputs .radio input:checked + span {
+background-color: #fff;
+font-weight: 600;
+}

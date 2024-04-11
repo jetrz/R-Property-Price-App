@@ -51,6 +51,7 @@ hospitals_data <- read.csv("data/Amenities/hospitals.csv")
 mall_data <- read.csv("data/Amenities/shopping_mall_coordinates.csv")
 
 # Create icons
+bus_stop_icon <- makeIcon(iconUrl = "data/icons/bus-stop-icon.png", iconWidth = 30, iconHeight = 30)
 mrt_icon <- makeIcon(iconUrl = "data/icons/mrt-icon.png", iconWidth = 30, iconHeight = 30)
 hospital_icon <- makeIcon(iconUrl = "data/icons/hospital-icon.png", iconWidth = 30, iconHeight = 30)
 shopping_mall_icon <- makeIcon(iconUrl = "data/icons/shopping-mall-icon.png", iconWidth = 30, iconHeight = 30)
@@ -112,7 +113,7 @@ shinyServer(function(input, output, session) {
                    selectInput("region_select", "Select Region:", choices = c("Core Central Region (CCR)", 
                                                                               "Rest of Central Region (RCR)",
                                                                               "Outside Central Region (OCR)")),
-                   actionButton("update_plot", "Update Plot"),
+                   actionButton("update_plot", "Update Plot", style="margin-bottom:1em;"),
                    plotOutput("region_boxplot"),
                    tableOutput("summary_table") # Added table output for summary
                )
@@ -188,7 +189,7 @@ shinyServer(function(input, output, session) {
         column(width = 12,
                box(width = NULL, solidHeader = TRUE,
                    radioButtons("amenity_selector", label = "Select Amenity:", 
-                                choices = c("Hospitals", "MRT Stations", "Shopping Malls"),
+                                choices = c("Hospitals", "Bus Stops (A bit slow!)", "MRT Stations", "Shopping Malls"),
                                 selected = "Hospitals")
                )
         )
@@ -219,6 +220,8 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$dropdown) && !is.null(input$amenity_selector) && input$dropdown == "Nearby Amenities") {
       if (input$amenity_selector == "Hospitals") {
         renderNearbyAmenities(hospitals_data, hospital_icon, ~paste0("<b>", hospitals_data$Name, "</b><br>Address: ", hospitals_data$Address), "Y", "X")
+      } else if (input$amenity_selector == "Bus Stops") {
+        renderNearbyAmenities(bus_stop_data, bus_stop_icon, ~paste0("<b>", bus_stop_data$Description, "</b><br>Stop No: ", bus_stop_data$BusStopCode), "Latitude", "Longitude")
       } else if (input$amenity_selector == "MRT Stations") {
         renderNearbyAmenities(mrt_data, mrt_icon, ~paste0("<b>", mrt_data$STN_NAME, "</b><br>Station No: ", mrt_data$STN_NO), "Latitude", "Longitude")
       } else if (input$amenity_selector == "Shopping Malls") {
@@ -238,25 +241,25 @@ shinyServer(function(input, output, session) {
 
   observeEvent(input$HDBPriceByAreaBarButton, {
     output$plotArea <- renderPlot({
-      HDBPriceByAreaBar()
+      HDBPriceByRegionBar()
     })
   })
 
   observeEvent(input$CondoPriceByAreaBarButton, {
     output$plotArea <- renderPlot({
-      CondoPriceByAreaBar()
+      CondoPriceByRegionBar()
     })
   })
 
   observeEvent(input$CondoPriceByAreaBoxButton, {
     output$plotArea <- renderPlot({
-      CondoPriceByAreaBox()
+      CondoPriceByRegionBox()
     })
   })
 
   observeEvent(input$HDBPriceByDistrictBarButton, {
     output$plotArea <- renderPlot({
-      HDBPriceByDistrictBar()
+      HousingPriceByDistrictBar()
     })
   })
 
@@ -279,7 +282,7 @@ shinyServer(function(input, output, session) {
   })
 
   ################################
-  ### RESALE VISUALISATION TAB ###
+  ### TOWN INFO TAB ###
   ################################
 
   # Observe click on Clear Town Selection button
@@ -302,61 +305,61 @@ shinyServer(function(input, output, session) {
   })
 
   output$condoPricePlot <- renderPlotly({
-    p <- meanPriceByTown("Condo", input$townSelectCondo)
+    p <- meanPriceByTown("Condo", input$townSelectCondo, timeRange=input$time_range_selector)
     ggplotly(p, tooltip = c("y", "lower", "middle", "upper", "ymin", "ymax"))
   })
 
-  ################################
-  ######## AMENITIES TAB #########
-  ################################
-  bus_stop_copy = data.frame(bus_stop_data)
-  bus_stop_copy$Description <- str_to_title((as.character(bus_stop_copy$Description)))
-  mrt_copy = data.frame(mrt_data)
-  mrt_copy$Name <- paste(mrt_copy$STN_NAME, mrt_copy$STN_NO, sep=", ")
-  malls_copy = data.frame(mall_data)
-  malls_copy <- malls_copy %>% rename(Longitude=LONGITUDE)
-  malls_copy <- malls_copy %>% rename(Latitude=LATITUDE)
-  hospitals_copy = data.frame(hospitals_data)
-  hospitals_copy <- hospitals_copy %>% rename(Longitude=X)
-  hospitals_copy <- hospitals_copy %>% rename(Latitude=Y)
+  # ################################
+  # ######## AMENITIES TAB #########
+  # ################################
+  # bus_stop_copy = data.frame(bus_stop_data)
+  # bus_stop_copy$Description <- str_to_title((as.character(bus_stop_copy$Description)))
+  # mrt_copy = data.frame(mrt_data)
+  # mrt_copy$Name <- paste(mrt_copy$STN_NAME, mrt_copy$STN_NO, sep=", ")
+  # malls_copy = data.frame(mall_data)
+  # malls_copy <- malls_copy %>% rename(Longitude=LONGITUDE)
+  # malls_copy <- malls_copy %>% rename(Latitude=LATITUDE)
+  # hospitals_copy = data.frame(hospitals_data)
+  # hospitals_copy <- hospitals_copy %>% rename(Longitude=X)
+  # hospitals_copy <- hospitals_copy %>% rename(Latitude=Y)
 
-  output$map <- renderLeaflet({
-    leaflet() %>%
-      addTiles() %>%
-      setView(lng = 103.850, lat = 1.290, zoom = 12)
-  })
+  # output$map <- renderLeaflet({
+  #   leaflet() %>%
+  #     addTiles() %>%
+  #     setView(lng = 103.850, lat = 1.290, zoom = 12)
+  # })
 
-  observe({
-    # Clear existing markers each time the input changes
-    leafletProxy("map") %>% clearMarkers()
+  # observe({
+  #   # Clear existing markers each time the input changes
+  #   leafletProxy("map") %>% clearMarkers()
 
-    if (input$amenityType == "Bus Stops") {
-      addMarkersFor(bus_stop_copy, "Description","#FF5733")
-    } else if (input$amenityType == "MRT Stops") {
-      addMarkersFor(mrt_copy, "Name","#33CFFF")
-    } else if (input$amenityType == "Malls") {
-      addMarkersFor(malls_copy, "Mall.Name","#8E44AD")
-    } else if (input$amenityType == "Hospitals") {
-      addMarkersFor(hospitals_copy, "Name","#2ECC71")
-    } else if (input$amenityType == "All") {
-      # Add markers for each dataset in turn, with the appropriate popup content
-      addMarkersFor(bus_stop_copy, "Description","#FF5733")
-      addMarkersFor(mrt_copy, "Name","#33CFFF")
-      addMarkersFor(malls_copy, "Mall.Name","#8E44AD")
-      addMarkersFor(hospitals_copy, "Name","#2ECC71")
-    }
-  })
+  #   if (input$amenityType == "Bus Stops") {
+  #     addMarkersFor(bus_stop_copy, "Description","#FF5733")
+  #   } else if (input$amenityType == "MRT Stops") {
+  #     addMarkersFor(mrt_copy, "Name","#33CFFF")
+  #   } else if (input$amenityType == "Malls") {
+  #     addMarkersFor(malls_copy, "Mall.Name","#8E44AD")
+  #   } else if (input$amenityType == "Hospitals") {
+  #     addMarkersFor(hospitals_copy, "Name","#2ECC71")
+  #   } else if (input$amenityType == "All") {
+  #     # Add markers for each dataset in turn, with the appropriate popup content
+  #     addMarkersFor(bus_stop_copy, "Description","#FF5733")
+  #     addMarkersFor(mrt_copy, "Name","#33CFFF")
+  #     addMarkersFor(malls_copy, "Mall.Name","#8E44AD")
+  #     addMarkersFor(hospitals_copy, "Name","#2ECC71")
+  #   }
+  # })
 
-  # Adjusted function to add markers for a given dataset with dynamic popup content
-  addMarkersFor <- function(data, popupColumn, color) {
-    leafletProxy("map", data = data) %>%
-      addCircleMarkers(
-        lng = ~Longitude, lat = ~Latitude,
-        popup = ~get(popupColumn, envir = as.environment(data)),color = color,
-      fillColor = color,
-      fillOpacity = 0.8,
-      radius = 6
-      )
-  }
+  # # Adjusted function to add markers for a given dataset with dynamic popup content
+  # addMarkersFor <- function(data, popupColumn, color) {
+  #   leafletProxy("map", data = data) %>%
+  #     addCircleMarkers(
+  #       lng = ~Longitude, lat = ~Latitude,
+  #       popup = ~get(popupColumn, envir = as.environment(data)),color = color,
+  #     fillColor = color,
+  #     fillOpacity = 0.8,
+  #     radius = 6
+  #     )
+  # }
 
 })

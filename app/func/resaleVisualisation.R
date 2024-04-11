@@ -23,14 +23,12 @@ meanPriceByTown <- function(propertyType, townSelect, timeRange=NULL, storyRange
     }
 
     # Filter by time range
-    if (propertyType == "HDB") {
-        if (timeRange == "Year") {
-            filteredData <- filteredData %>% filter(date > Sys.Date() - years(1))
-        } else if (timeRange == "5 Years") {
-            filteredData <- filteredData %>% filter(date > Sys.Date() - years(5))
-        } else if (timeRange == "10 Years") {
-            filteredData <- filteredData %>% filter(date > Sys.Date() - years(10))
-        }
+    if (timeRange == "Year") {
+        filteredData <- filteredData %>% filter(date > Sys.Date() - years(1))
+    } else if (timeRange == "5 Years") {
+        filteredData <- filteredData %>% filter(date > Sys.Date() - years(5))
+    } else if (timeRange == "10 Years") {
+        filteredData <- filteredData %>% filter(date > Sys.Date() - years(10))
     }
     
     # Filter by selected story ranges, ignoring "All" if other ranges are selected

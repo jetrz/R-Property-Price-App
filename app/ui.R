@@ -14,54 +14,129 @@ hdbdata <- read.csv("data/hdb.csv")
 
 orderedStoryRange <- c("01 TO 03","04 TO 06","07 TO 09","10 TO 12","13 TO 15","16 TO 18","19 TO 21","22 TO 24","25 TO 27","28 TO 30","31 TO 33","34 TO 36","37 TO 39","40 TO 42","43 TO 45","46 TO 48","49 TO 51")
 
+addResourcePath("bg", "data/bg")
+
 # Define UI for application
 ui <- dashboardPage(
-  dashboardHeader(title = "Property Price Dashboard"),
+  dashboardHeader(title = "Property Price Helper"),
   dashboardSidebar(
+    tags$head(includeCSS(("styles.css"))),
     sidebarMenu(
-      menuItem("Property Finder", tabName = "property_finder"),
-      menuItem("Calculator", tabName = "calculator"),
-      menuItem("Resale Visualisations", tabName = "resale_visualisations"),
-      menuItem("Amenities", tabName = "amenities"),
+      menuItem("District Info", tabName = "district_info"),
+      menuItem("Town Info", tabName = "town_info"),
+      menuItem("Purchase/Sale Calculator", tabName = "calculator"),
+      # menuItem("Amenities", tabName = "amenities"),
       menuItem("Data Visualisations", tabName = "data_visualisations"),  # New tab for data visualizations
-      menuItem("About", tabName = "about"),
-      menuItem("FAQs", tabName = "faqs")
+      menuItem("About", tabName = "about")
     )
   ),
   dashboardBody(
+    # District Info tab
     tabItems(
-      tabItem(tabName = "property_finder",
+      tabItem(tabName = "district_info",
+              h2("Property Info By Districts"),
+              p("This tab shows information about property prices across districts."),
+              tags$hr(style="border-color: black;"),
               fluidRow(
-                column(width = 9,
-                       box(width = NULL, solidHeader = TRUE,
-                           leafletOutput("propertyMap_property_finder", height = 500)
-                       )
+                column(width = 3,
+                  tags$div(class="radio-inputs select-property-radio",
+                    radioButtons("property_type_selector", label = "Select Property Type",
+                    choices = c("HDB", "Condo"), selected = "HDB")
+                  )
                 ),
                 column(width = 3,
-                       radioButtons("property_type_selector", label = "Select Property Type", 
-                                    choices = c("HDB", "Condo"), selected = "HDB"),
-                       selectInput("dropdown", label = "Select:", choices = c("Price Charts", "Nearby Amenities")),
-                       uiOutput("price_chart_ui"),
-                       uiOutput("amenities_ui")
+                  selectInput("dropdown", label = "Select:", choices = c("Price Charts", "Nearby Amenities"))
+                )
+              ),
+              uiOutput("price_chart_ui"),
+              uiOutput("amenities_ui"),
+              box(width = NULL, solidHeader = TRUE,
+                  leafletOutput("propertyMap_property_finder", height = 500)
+              )
+      ),
+      # Town Info tab
+      tabItem(tabName = "town_info",
+              h2("Property Info By Towns"),
+              p("This tab shows information about property prices across towns."),
+              tags$hr(style="border-color: black;"),
+              fluidRow(style="margin-bottom:25px;",
+                column( width = 3,
+                  tags$div(class="radio-inputs select-property-radio",
+                    radioButtons("property_type_selector_2", label = "Select Property Type",
+                            choices = c("HDB", "Condo"), selected = "HDB")
+                  )
+                ),
+                column( width = 4,
+                  tags$div(class="radio-inputs",
+                    radioButtons("time_range_selector", label = "Select Time Range",
+                            choices = c("Year", "5 Years", "10 Years", "All"), selected = "All"),
+                  )
+                ),
+                column( width = 4,
+                  conditionalPanel(
+                    condition = "input.property_type_selector_2 === 'HDB'",
+                    fluidRow(
+                      column(width=10,
+                        selectInput("townSelectHDB", "Select Town(s):", 
+                          choices = c("All" = "All", unique(hdbdata$town)),selected = "All", multiple = TRUE),
+                      ),
+                      column(width=2,style="margin-top:25px; margin-left:-25px;",
+                        actionButton("clearTownHDB", "Clear", style="margin-bottom:15px;")
+                      )
+                    ),
+                    fluidRow(
+                      column(width=10,
+                        selectInput("storyRangeSelect", "Select Story Range(s):", 
+                          choices = c("All"="All", orderedStoryRange),selected = "All", multiple = TRUE)
+                      ),
+                      column(width=2,style="margin-top:25px; margin-left:-25px;",
+                        actionButton("clearStoryRange", "Clear")
+                      )
+                    )
+                  ),
+                  conditionalPanel(
+                    condition = "input.property_type_selector_2 === 'Condo'",
+                    selectInput("townSelectCondo", "Select Town(s):", 
+                                choices = c("All" = "All", unique(condodata$district)),selected = "All", multiple = TRUE),
+                    actionButton("clearTownCondo", "Clear Town Selection"),
+                  )
+                )
+              ),
+              box(width = NULL, solidHeader = TRUE,
+                conditionalPanel(
+                  condition = "input.property_type_selector_2 === 'HDB'",
+                  plotlyOutput("hdbPricePlot")
+                ),
+                conditionalPanel(
+                  condition = "input.property_type_selector_2 === 'Condo'",
+                  plotlyOutput("condoPricePlot")
                 )
               )
       ),
-      
       # Calculator tab
       tabItem(tabName = "calculator",
+              h2("Purchase/Sale Calculator"),
+              p("This tab helps you calculate the balance from selling a condo and purchasing a HDB. Input the respective values on the right, and the balance will be automatically calculated and displayed on the left."),
+              tags$hr(style="border-color: black;"),
               fluidRow(
-                column(width = 6,
-                       wellPanel(
-                         h4("Calculator"),
+                column(width=4,
+                       h5(style="font-weight:bold;", "Potential Cash Proceeds from Sale of Condo"),
+                       verbatimTextOutput("cash_proceeds"),
+                       h5(style="font-weight:bold;","Amount Available for Purchasing a HDB"),
+                       verbatimTextOutput("amount_available")
+                ),
+                column(width=4,
+                       box(width = NULL, solidHeader = TRUE,
+                         h4("Condo"),
                          numericInput("sale_price", "Condo Sale Price (SGD)", value = 0),
                          numericInput("outstanding_loan", "Outstanding Loan Amount (SGD)", value = 0),
                          numericInput("cpf_refund", "CPF Refund (SGD)", value = 0),
                          numericInput("other_fees", "Other Fees (Legal, Property Agent, Taxes, etc.) (SGD)", value = 0)
                        )
                 ),
-                column(width = 6,
-                       wellPanel(
-                         h4("Calculator"),
+                column(width=4,
+                       box(width = NULL, solidHeader = TRUE,
+                         h4("HDB"),
                          numericInput("cpf_balance", "Total CPF Balance Amount (SGD)", value = 0),
                          numericInput("loan", "Loan (SGD)", value = 0),
                          numericInput("hdb_grant", "HDB Grant (SGD)", value = 0),
@@ -70,67 +145,37 @@ ui <- dashboardPage(
                          numericInput("other_commitments", "Other Financial Commitments (SGD)", value = 0)
                        )
                 )
-              ),
-              fluidRow(
-                column(width = 12,
-                       h4("Potential Cash Proceeds from Sale of Condo:"),
-                       verbatimTextOutput("cash_proceeds"),
-                       h4("Amount Available for Purchasing a HDB:"),
-                       verbatimTextOutput("amount_available")
-                )
               )
       ),
-      # Resale Flats Price Visualisation tab
-      tabItem(tabName = "resale_visualisations",
-              h2("Resale Flats Price Visualisation"),
-              radioButtons("property_type_selector_2", label = "Select Property Type",
-                          choices = c("HDB", "Condo"), selected = "HDB"),
-
-              conditionalPanel(
-                condition = "input.property_type_selector_2 === 'HDB'",
-                radioButtons("time_range_selector", label = "Select Time Range",
-                          choices = c("Year", "5 Years", "10 Years", "All"), selected = "All"),
-                selectInput("townSelectHDB", "Select Town(s):", 
-                          choices = c("All" = "All", unique(hdbdata$town)),selected = "All", multiple = TRUE),
-                actionButton("clearTownHDB", "Clear Town Selection"),
-                selectInput("storyRangeSelect", "Select Story Range(s):", 
-                            choices = c("All"="All", orderedStoryRange),selected = "All", multiple = TRUE),
-                actionButton("clearStoryRange", "Clear Story Range Selection"),
-                plotlyOutput("hdbPricePlot")
-              ),
-
-              conditionalPanel(
-                condition = "input.property_type_selector_2 === 'Condo'",
-                selectInput("townSelectCondo", "Select Town(s):", 
-                            choices = c("All" = "All", unique(condodata$district)),selected = "All", multiple = TRUE),
-                actionButton("clearTownCondo", "Clear Town Selection"),
-                plotlyOutput("condoPricePlot")
-              )
-      ),
-      # Amenities Tab
-      tabItem(tabName = "amenities",
-              radioButtons("amenityType", "Choose Amenity Type:",
-                   choices = c("All", "Bus Stops", "MRT Stops", "Malls", "Hospitals")),
-              leafletOutput("map")
-      ),
+      # # Amenities Tab
+      # tabItem(tabName = "amenities",
+      #         radioButtons("amenityType", "Choose Amenity Type:",
+      #              choices = c("All", "Bus Stops", "MRT Stops", "Malls", "Hospitals")),
+      #         leafletOutput("map")
+      # ),
       # Data Visualisations tab
       tabItem(tabName = "data_visualisations",
               h2("Data Visualisations"),
-              p("This is the Data Visualisations page. You can add your visualizations here."),
-              p("Click the button to display the HDB Mean Price by Area graph."),
-              actionButton("HDBPriceByAreaBarButton", "HDB Prices By District & Region (Bar)"),
-              actionButton("CondoPriceByAreaBarButton", "Condo Prices By District & Region (Bar)"),
-              actionButton("CondoPriceByAreaBoxButton", "Condo Prices By District & Region (Box)"),
-              actionButton("HDBPriceByDistrictBarButton", "HDB Prices By District (Bar)"),
-              actionButton("ResalePriceByRegionDensityButton", "Resale Prices By Region (Density)"),
-              actionButton("RelLeaseDurResalePriceButton", "Relationship between Remaining Lease Duration & Resale Prices"),
-              actionButton("PriceByRegionAndSizeButton", "Mean Price by Region and Size"),
-              plotOutput("plotArea")
+              p("This tab contains different analyses of property prices. Choose the analysis type to see more details."),
+              tags$hr(style="border-color: black;"),
+              fluidRow(
+                column(width=4,
+                  actionButton("HDBPriceByAreaBarButton", "HDB Prices By District & Region (Bar)", class="custom-button-1"),
+                  actionButton("CondoPriceByAreaBarButton", "Condo Prices By District & Region (Bar)", class="custom-button-1"),
+                  actionButton("CondoPriceByAreaBoxButton", "Condo Prices By District & Region (Box)", class="custom-button-1"),
+                  actionButton("HDBPriceByDistrictBarButton", "HDB Prices By District (Bar)", class="custom-button-1"),
+                  actionButton("ResalePriceByRegionDensityButton", "Resale Prices By Region (Density)", class="custom-button-1"),
+                  actionButton("RelLeaseDurResalePriceButton", "Remaining Lease Duration vs Resale Price", class="custom-button-1"),
+                  actionButton("PriceByRegionAndSizeButton", "Mean Price by Region and Size", class="custom-button-1")
+                ),
+                column(width=8, box(width = NULL, solidHeader = TRUE, plotOutput("plotArea")))
+              )
       ),
       # About tab
       tabItem(tabName = "about",
               h2("About"),
               p("Our app aims to revolutionize property transactions in Singapore by providing transparent and comprehensive market data. With insights into property prices and trends, buyers and sellers can make informed decisions, reducing reliance on costly intermediaries."),
+              tags$hr(style="border-color: black;"),
               h3("Objective:"),
               p("Empower users with transparent property market data for informed decision-making."),
               h3("Market Insight:"),
@@ -141,11 +186,6 @@ ui <- dashboardPage(
               p("Address growing demand for transparency, facilitate informed investment decisions, and assist new home buyers in navigating the market."),
               h3("Features:"),
               p("Market price trend analysis, interactive maps, customizable search filters, and historical data visualization.")
-      ),
-      # FAQ tab
-      tabItem(tabName = "faqs",
-              h2("FAQs"),
-              p("This is the FAQs page. You can add more content here.")
       )
     )
   )

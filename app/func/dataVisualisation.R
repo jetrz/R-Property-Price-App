@@ -79,7 +79,6 @@ CondoPriceByRegionBox <- function() {
         theme(axis.text.x = element_text(angle = 0, hjust = 1)) +  # Rotate x-axis labels for better readability
         scale_y_continuous(trans = "log")  # Use log-scale for y-axis if needed
 }
-
 mean_prices_by_district_condo <- mean_prices_by_district_condo %>%
   mutate(source = "Condo")
 
@@ -90,15 +89,15 @@ mean_prices_by_district_hdb <- mean_prices_by_district_hdb %>%
 combined_data <- rbind(mean_prices_by_district_condo, mean_prices_by_district_hdb)
 
 HousingPriceByDistrictBar <- function() {
-    ggplot(combined_data, aes(x = region, y = mean_price, fill = source)) +
-        geom_bar(stat = "identity", position = position_dodge()) +
-        theme_minimal() +
-        scale_y_continuous(labels = scales::comma) +
-        labs(title = "Comparison of Mean Prices by Region",
-            x = "Region",
-            y = "Mean Price(SGD)",
-            fill = "Source") +
-        scale_fill_manual(values = c("Condo" = "blue", "HDB" = "red")) # You can change the colors as per your preference
+  ggplot(combined_data, aes(x = region, y = mean_price, fill = source)) +
+    geom_bar(stat = "identity", position = position_dodge()) +
+    theme_minimal() +
+    scale_y_continuous(labels = scales::comma) +
+    labs(title = "Comparison of Mean Prices by Region",
+         x = "Region",
+         y = "Mean Price (SGD)",
+         fill = "Source") +
+    scale_fill_manual(values = c("Condo" = "blue", "HDB" = "red"))
 }
 
 #check types of sale type
