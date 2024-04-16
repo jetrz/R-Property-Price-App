@@ -14,7 +14,8 @@ meanPriceByTown <- function(propertyType, townSelect, timeRange=NULL, storyRange
         filteredData <- hdbdata
     } else {
         filteredData <- condodata
-        filteredData <- filteredData %>% rename(town=district, resale_price=price)
+        filteredData <- subset(filteredData, select=-c(date))
+        filteredData <- filteredData %>% rename(town=district, resale_price=price, date=new_date)
     }
     
     # Filter by selected towns, ignoring "All" if other towns are selected
@@ -25,6 +26,7 @@ meanPriceByTown <- function(propertyType, townSelect, timeRange=NULL, storyRange
     # Filter by time range
     if (timeRange == "Year") {
         filteredData <- filteredData %>% filter(date > Sys.Date() - years(1))
+        print(filteredData)
     } else if (timeRange == "5 Years") {
         filteredData <- filteredData %>% filter(date > Sys.Date() - years(5))
     } else if (timeRange == "10 Years") {

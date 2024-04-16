@@ -67,9 +67,19 @@ ui <- dashboardPage(
                   )
                 ),
                 column( width = 4,
-                  tags$div(class="radio-inputs",
-                    radioButtons("time_range_selector", label = "Select Time Range",
-                            choices = c("Year", "5 Years", "10 Years", "All"), selected = "All"),
+                  conditionalPanel(
+                    condition = "input.property_type_selector_2 === 'HDB'",
+                    tags$div(class="radio-inputs",
+                             radioButtons("time_range_selector", label = "Select Time Range",
+                                          choices = c("Year", "5 Years", "10 Years", "All"), selected = "All")
+                    )
+                  ),
+                  conditionalPanel(
+                    condition = "input.property_type_selector_2 === 'Condo'",
+                    tags$div(class="radio-inputs",
+                             radioButtons("time_range_selector", label = "Select Time Range",
+                                          choices = c("5 Years", "10 Years", "All"), selected = "All")
+                    )
                   )
                 ),
                 column( width = 4,
@@ -164,9 +174,10 @@ ui <- dashboardPage(
                   actionButton("CondoPriceByAreaBarButton", "Condo Prices By District & Region (Bar)", class="custom-button-1"),
                   actionButton("CondoPriceByAreaBoxButton", "Condo Prices By District & Region (Box)", class="custom-button-1"),
                   actionButton("HDBPriceByDistrictBarButton", "HDB Prices By District (Bar)", class="custom-button-1"),
-                  actionButton("ResalePriceByRegionDensityButton", "Resale Prices By Region (Density)", class="custom-button-1"),
+                  # actionButton("ResalePriceByRegionDensityButton", "Resale Prices By Region (Density)", class="custom-button-1"),
                   actionButton("RelLeaseDurResalePriceButton", "Remaining Lease Duration vs Resale Price", class="custom-button-1"),
-                  actionButton("PriceByRegionAndSizeButton", "Mean Price by Region and Size", class="custom-button-1")
+                  actionButton("PriceByRegionAndSizeButton", "Mean Price by Region and Size", class="custom-button-1"),
+                  actionButton("TransactionByYearButton", "Mean Transaction Price by Year", class="custom-button-1")
                 ),
                 column(width=8, box(width = NULL, solidHeader = TRUE, plotOutput("plotArea")))
               )
@@ -193,4 +204,4 @@ ui <- dashboardPage(
 
 
 # rsconnect::setAccountInfo(name='jetrz', token='5AB974D84D655BB4DCB1669B981058E9', secret='wmQnFWP4AOiWzYGzs6viid8E2JVskRENTMQztoRw')
-# rsconnect::deployApp(appName='DBA3711')
+# rsconnect::deployApp(appName='DBA3702')

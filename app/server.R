@@ -115,7 +115,7 @@ shinyServer(function(input, output, session) {
                                                                               "Outside Central Region (OCR)")),
                    actionButton("update_plot", "Update Plot", style="margin-bottom:1em;"),
                    plotOutput("region_boxplot"),
-                   tableOutput("summary_table") # Added table output for summary
+                   plotOutput("line_chart")
                )
         )
       )
@@ -141,25 +141,45 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  # Render summary table for selected region
-  output$summary_table <- renderTable({
-    req(input$update_plot)
-
+  # Render line chart for selected town
+  output$line_chart <- renderPlot({
+    req(input$update_plot)  # Ensure input$update_plot and input$region are not null
     if (input$property_type_selector == "HDB") {
       filtered_data <- filtered_data_region_hdb()
     } else {
       filtered_data <- data.frame(filtered_data_region_condo())
-      filtered_data <- filtered_data %>% rename(town=building, flat_type=type, resale_price=price)
+      filtered_data <- filtered_data %>% rename(resale_price=price)
     }
 
-    if (!is.null(filtered_data)) {
-      # Subset the latest 10 transactions and select relevant columns
-      latest_transactions <- head(filtered_data[order(filtered_data$month, decreasing = TRUE), ], 10)
+    if (is.null(filtered_data)) { return; }
 
-      latest_transactions <- latest_transactions[, c("town", "month", "flat_type", "resale_price")]
-      colnames(latest_transactions) <- c("Town", "Month", "Flat Type", "Resale Price")
-      latest_transactions
+    print(filtered_data)
+
+    if (input$property_type_selector == "HDB") {
+      # Extract month and year
+      filtered_data$year <- substr(filtered_data$month, 1, 4)  # Corrected from filtered_data_region$month
+      filtered_data$month <- sub(".*-", "", filtered_data$month)
     }
+
+    # Find the latest year in the dataset
+    latest_year <- as.numeric(max(filtered_data$year)) - 1
+    
+    # Filter data for the latest year
+    filtered_data_latest_year <- filtered_data[filtered_data$year == latest_year, ]
+    
+    # Calculate average resale price by month
+    monthly_avg_price <- filtered_data_latest_year %>%
+      group_by(month) %>%
+      summarise(avg_resale_price = mean(resale_price))
+    
+    # Assuming 'month' is represented as character values ("01", "02", ..., "12")
+    # Convert the month column to factor and specify levels as month names
+    monthly_avg_price$month <- factor(monthly_avg_price$month, levels = sprintf("%02d", 1:12), labels = month.abb)
+    
+    # Plot the line chart using ggplot2 with the updated month labels
+    ggplot(monthly_avg_price, aes(x = month, y = avg_resale_price, group = 1)) +
+      geom_line() +
+      labs(x = "Month", y = "Average Resale Price", title = paste("Average Resale Price In", as.character(latest_year)))
   })
   
   # Calculate cash proceeds
@@ -189,7 +209,7 @@ shinyServer(function(input, output, session) {
         column(width = 12,
                box(width = NULL, solidHeader = TRUE,
                    radioButtons("amenity_selector", label = "Select Amenity:", 
-                                choices = c("Hospitals", "Bus Stops (A bit slow!)", "MRT Stations", "Shopping Malls"),
+                                choices = c("Hospitals", "Bus Stops", "MRT Stations", "Shopping Malls"),
                                 selected = "Hospitals")
                )
         )
@@ -278,6 +298,12 @@ shinyServer(function(input, output, session) {
   observeEvent(input$PriceByRegionAndSizeButton, {
     output$plotArea <- renderPlot({
       PriceByRegionAndSize()
+    })
+  })
+  
+  observeEvent(input$TransactionByYearButton, {
+    output$plotArea <- renderPlot({
+      MeanTransactionByYear()
     })
   })
 
