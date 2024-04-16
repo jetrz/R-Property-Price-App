@@ -153,8 +153,6 @@ shinyServer(function(input, output, session) {
 
     if (is.null(filtered_data)) { return; }
 
-    print(filtered_data)
-
     if (input$property_type_selector == "HDB") {
       # Extract month and year
       filtered_data$year <- substr(filtered_data$month, 1, 4)  # Corrected from filtered_data_region$month
@@ -171,10 +169,13 @@ shinyServer(function(input, output, session) {
     monthly_avg_price <- filtered_data_latest_year %>%
       group_by(month) %>%
       summarise(avg_resale_price = mean(resale_price))
-    
-    # Assuming 'month' is represented as character values ("01", "02", ..., "12")
+
     # Convert the month column to factor and specify levels as month names
-    monthly_avg_price$month <- factor(monthly_avg_price$month, levels = sprintf("%02d", 1:12), labels = month.abb)
+    if (input$property_type_selector == "HDB") {
+      monthly_avg_price$month <- factor(monthly_avg_price$month, levels = sprintf("%02d", 1:12), labels = month.abb)
+    } else {
+      monthly_avg_price$month <- factor(monthly_avg_price$month, levels = as.character(1:12), labels = month.abb)
+    }
     
     # Plot the line chart using ggplot2 with the updated month labels
     ggplot(monthly_avg_price, aes(x = month, y = avg_resale_price, group = 1)) +
