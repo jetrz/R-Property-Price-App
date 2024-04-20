@@ -97,6 +97,7 @@ combined_data <- rbind(mean_prices_by_district_condo, mean_prices_by_district_hd
 
 #Plot 4
 HousingPriceByDistrictBar <- function() {
+  combined_data <- combined_data[!is.na(combined_data$region),]
   ggplot(combined_data, aes(x = region, y = mean_price, fill = source)) +
     geom_bar(stat = "identity", position = position_dodge()) +
     theme_minimal() +

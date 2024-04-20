@@ -18,7 +18,7 @@ addResourcePath("bg", "data/bg")
 
 # Define UI for application
 ui <- dashboardPage(
-  dashboardHeader(title = "Property Price Helper"),
+  dashboardHeader(title = "Property Insight SG"),
   dashboardSidebar(
     tags$head(includeCSS(("styles.css"))),
     sidebarMenu(
@@ -27,7 +27,38 @@ ui <- dashboardPage(
       menuItem("Purchase/Sale Calculator", tabName = "calculator"),
       # menuItem("Amenities", tabName = "amenities"),
       menuItem("Data Visualisations", tabName = "data_visualisations"),  # New tab for data visualizations
-      menuItem("About", tabName = "about")
+      menuItem("About", tabName = "about"),
+      tags$div(class="district_reference",
+        p("District/Town Reference", style="font-weight:bold; font-size:17px; text-decoration:underline;"),
+        p("District 1: Raffles Place, Cecil, Marina, People's Park"),
+        p("District 2: Anson, Tanjong Pagar"),
+        p("District 3: Queenstown, Tiong Bahru"),
+        p("District 4: Telok Blangah, Harbourfront"),
+        p("District 5: Pasir Panjang, Hong Leong Garden, Clementi New Town"),
+        p("District 6: High Street, Beach Road (part)"),
+        p("District 7: Middle Road, Golden Mile"),
+        p("District 8: Little India"),
+        p("District 9: Orchard, Cairnhill, River Valley"),
+        p("District 10: Ardmore, Bukit Timah, Holland Road, Tanglin"),
+        p("District 11: Watten Estate, Novena, Thomson"),
+        p("District 12: Balestier, Toa Payoh, Serangoon"),
+        p("District 13: Macpherson, Braddell"),
+        p("District 14: Geylang, Eunos"),
+        p("District 15: Katong, Joo Chiat, Amber Road"),
+        p("District 16: Bedok, Upper East Coast, Eastwood, Kew Drive"),
+        p("District 17: Loyang, Changi"),
+        p("District 18: Tampines, Pasir Ris"),
+        p("District 19: Serangoon Garden, Hougang, Punggol"),
+        p("District 20: Bishan, Ang Mo Kio"),
+        p("District 21: Upper Bukit Timah, Clementi Park, Ulu Pandan"),
+        p("District 22: Jurong"),
+        p("District 23: Hillview, Dairy Farm, Bukit Panjang, Choa Chu Kang"),
+        p("District 24: Lim Chu Kang, Tengah"),
+        p("District 25: Kranji, Woodgrove"),
+        p("District 26: Upper Thomson, Springleaf"),
+        p("District 27: Yishun, Sembawang"),
+        p("District 28: Seletar")
+      )
     )
   ),
   dashboardBody(
@@ -36,6 +67,21 @@ ui <- dashboardPage(
       tabItem(tabName = "district_info",
               h2("Property Info By Districts"),
               p("This tab shows information about property prices across districts."),
+              tags$span(style="font-weight:bold;", "To View Price Charts within a Region"),
+              tags$br(),
+              tags$span("- Select Property Type: In the dashboard, choose the property type (e.g., HDB or condominium) you're interested in."),
+              tags$br(),
+              tags$span("- Access Price Charts: Go to the Price Charts section and select the region you want to explore."),
+              tags$br(),
+              tags$span("- Analyze Boxplot Chart: Once you've chosen a region, you'll see a boxplot chart displaying mean property prices alongside quartile ranges. Review the chart to understand average prices and price distribution in the area."),
+              tags$br(),
+              tags$span("- Explore Time Trend Chart: Below the boxplot chart, find the time trend chart. This chart illustrates the latest year records of property prices, allowing you to observe market trends and patterns over time."),
+              tags$br(),tags$br(),
+              tags$span(style="font-weight:bold;", "To View Nearby Amenities"),
+              tags$br(),
+              tags$span("- Select Amenities: Click on the radio button next to the amenity you want to view (e.g., Hospitals, Bus Stops, MRT Stations, Shopping Malls)."),
+              tags$br(),
+              tags$span("- View on Map: The selected amenities will appear on the map below for easy reference."),
               tags$hr(style="border-color: black;"),
               fluidRow(
                 column(width = 3,
@@ -58,6 +104,15 @@ ui <- dashboardPage(
       tabItem(tabName = "town_info",
               h2("Property Info By Towns"),
               p("This tab shows information about property prices across towns."),
+              tags$span("- Select Property Type: In the dashboard, choose the property type (e.g., HDB or condominium) you're interested in."),
+              tags$br(),
+              tags$span("- Choose Time Range: Select the time range you want to analyze (1 Year, 5 Years, 10 Years, All Time)."),
+              tags$br(),
+              tags$span("- Choose Towns: Select the towns you're interested in exploring."),
+              tags$br(),
+              tags$span("- Select Story Range: Specify the story range (Only applicable for HDB)."),
+              tags$br(),
+              tags$span("- View Resale Price Distribution: After applying your filters, a chart will display the resale price distribution, showing a box plot of prices within the selected towns and filters added."),
               tags$hr(style="border-color: black;"),
               fluidRow(style="margin-bottom:25px;",
                 column( width = 3,
@@ -157,12 +212,6 @@ ui <- dashboardPage(
                 )
               )
       ),
-      # # Amenities Tab
-      # tabItem(tabName = "amenities",
-      #         radioButtons("amenityType", "Choose Amenity Type:",
-      #              choices = c("All", "Bus Stops", "MRT Stops", "Malls", "Hospitals")),
-      #         leafletOutput("map")
-      # ),
       # Data Visualisations tab
       tabItem(tabName = "data_visualisations",
               h2("Data Visualisations"),
@@ -170,16 +219,20 @@ ui <- dashboardPage(
               tags$hr(style="border-color: black;"),
               fluidRow(
                 column(width=4,
-                  actionButton("HDBPriceByAreaBarButton", "HDB Prices By District & Region (Bar)", class="custom-button-1"),
+                  actionButton("HDBPriceByAreaBarButton", "HDB Prices By District & Region", class="custom-button-1"),
                   actionButton("CondoPriceByAreaBarButton", "Condo Prices By District & Region (Bar)", class="custom-button-1"),
                   actionButton("CondoPriceByAreaBoxButton", "Condo Prices By District & Region (Box)", class="custom-button-1"),
-                  actionButton("HDBPriceByDistrictBarButton", "HDB Prices By District (Bar)", class="custom-button-1"),
-                  # actionButton("ResalePriceByRegionDensityButton", "Resale Prices By Region (Density)", class="custom-button-1"),
+                  actionButton("HDBPriceByDistrictBarButton", "HDB vs Condo By Region", class="custom-button-1"),
                   actionButton("RelLeaseDurResalePriceButton", "Remaining Lease Duration vs Resale Price", class="custom-button-1"),
                   actionButton("PriceByRegionAndSizeButton", "Mean Price by Region and Size", class="custom-button-1"),
                   actionButton("TransactionByYearButton", "Mean Transaction Price by Year", class="custom-button-1")
                 ),
-                column(width=8, box(width = NULL, solidHeader = TRUE, plotOutput("plotArea")))
+                column(width=8, 
+                  box(width = NULL, solidHeader = TRUE, 
+                    uiOutput("graph_desc"),
+                    plotOutput("plotArea")
+                  )
+                )
               )
       ),
       # About tab
@@ -201,7 +254,3 @@ ui <- dashboardPage(
     )
   )
 )
-
-
-# rsconnect::setAccountInfo(name='jetrz', token='5AB974D84D655BB4DCB1669B981058E9', secret='wmQnFWP4AOiWzYGzs6viid8E2JVskRENTMQztoRw')
-# rsconnect::deployApp(appName='DBA3702')

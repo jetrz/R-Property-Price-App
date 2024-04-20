@@ -264,11 +264,19 @@ shinyServer(function(input, output, session) {
     output$plotArea <- renderPlot({
       HDBPriceByRegionBar()
     })
+
+    output$graph_desc <- renderUI({
+      p("District 10 stands out as the sole district within the Core Central Region (CCR) that includes public housing, with neighboring areas predominantly featuring upscale residences like Good Class Bungalows (GCB) and luxury apartments. This unique positioning could influence the pricing of HDBs in District 10, potentially making them pricier compared to those in other districts. Generally, housing prices tend to decrease as one moves further from the city center. Additionally, HDBs located in the Rest of Central Region (RCR) often fetch higher prices than those in the Outside Central Region (OCR), suggesting a gradient in property prices radiating outward from the central region of Singapore. Prospective buyers should consider these dynamics carefully, especially when contemplating purchases in pricier central districts like District 10.")
+    })
   })
 
   observeEvent(input$CondoPriceByAreaBarButton, {
     output$plotArea <- renderPlot({
       CondoPriceByRegionBar()
+    })
+
+    output$graph_desc <- renderUI({
+      p("Condominium prices mirror the trends observed in HDBs, with the highest prices typically found in the CCR as visualized in Figure 8. However, unlike HDBs, the variance in condo prices is more pronounced across different districts within the RCR and OCR. For example, condos in District 21 (OCR), a mature estate, may command higher mean prices compared to those in the less mature District 8 (RCR). For property owners in the CCR considering a sale, the premium pricing of this region could potentially yield significant returns. Additionally, when evaluating real estate investments, one should also consider the general maturity of the district, as it plays a crucial role in influencing property values. This factor is particularly important in assessing the potential growth and stability of property prices across various districts.")
     })
   })
 
@@ -276,17 +284,19 @@ shinyServer(function(input, output, session) {
     output$plotArea <- renderPlot({
       CondoPriceByRegionBox()
     })
+
+    output$graph_desc <- renderUI({
+      p("District 10, located within CCR, is characterized by notably higher property prices, but with a comparatively narrow range of price fluctuation. This suggests a more stable and consistent market within the CCR. In contrast, the RCR exhibits greater variability in property prices, indicating a wider spread that might appeal to investors looking for potential upsides but could deter those adverse to risk. Meanwhile, the OCR tends to display more uniform and consistent price spreads, making it a viable option for buyers with a preference for predictability and lower budgets. For potential buyers, understanding the spread of property prices within these regions is crucial. Those with a lower tolerance for price variability might find the stable pricing in the CCR more appealing if their budget allows, while the OCR offers a more affordable and consistent market for those with budget constraints.")
+    })
   })
 
   observeEvent(input$HDBPriceByDistrictBarButton, {
     output$plotArea <- renderPlot({
       HousingPriceByDistrictBar()
     })
-  })
 
-  observeEvent(input$ResalePriceByRegionDensityButton, {
-    output$plotArea <- renderPlot({
-      ResalePriceByRegionDensity()
+    output$graph_desc <- renderUI({
+      p("Condominiums consistently command higher prices across all regions, with OCR typically offering the most affordable options. This price discrepancy among regions is notably more pronounced for condominiums compared to Housing Development Board (HDB) flats. For instance, the mean prices of condos in CCR are nearly double those in the OCR. This stark difference underscores the significant variation in property values across different areas of Singapore. For potential property investors or homeowners considering a change, downgrading from a condominium to an HDB flat within the same region could yield substantial profits, given the considerable price differences. Moreover, transitioning from a condominium in a higher-priced region to an HDB flat in a lower-priced region could potentially result in even greater returns. Understanding these price dynamics is essential for users navigating the real estate market, as it can inform strategic decisions regarding property investments or changes in housing preferences.")
     })
   })
 
@@ -294,17 +304,38 @@ shinyServer(function(input, output, session) {
     output$plotArea <- renderPlot({
       RelLeaseDurResalePrice()
     })
+
+    output$graph_desc <- renderUI({
+      tags$div(
+      p("In general, there is a positive correlation between the mean resale price of HDB and the remaining lease years. Across all three regions, a longer lease term corresponds to higher resale prices. This alignment is intuitive, considering that properties with longer remaining lease durations hold greater value for potential buyers. However, upon closer look, it was also observed that for CCR, the trend is not so obvious as most data fall within the 50-70 years of remaining lease, potentially because most HDB in CCR are relatively old and thus not having longer remaining lease durations. "),
+      p("Considering these factors, potential buyers seeking to downgrade to HDB should thoughtfully evaluate the remaining lease duration. Although longer leases typically fetch higher prices, this pattern may not always be true in the CCR due to the prevalence of older properties with shorter remaining leases. Depending on desired lease duration and budget constraints, buyers may explore various regions offering different lease terms. Additionally, they should factor in future resale potential if they consider alternative options down the line.")
+      )
+    })
   })
 
   observeEvent(input$PriceByRegionAndSizeButton, {
     output$plotArea <- renderPlot({
       PriceByRegionAndSize()
     })
+
+    output$graph_desc <- renderUI({
+      tags$div(
+      p("The trend observed for condominiums reveals a decline in the mean property price with an increase in property size. Conversely, the trend for HDB flats appears less consistent, indicating variations in pricing dynamics across different regions. Despite this discrepancy, both property types consistently exhibit higher mean prices in the CCR compared to other regions, underscoring the influential role of this region in shaping market prices."),
+      p("The mean price per sqm for properties located in RCR shows a rather interesting trend. While the average price for condominiums tends to decrease alongside property size, the opposite is true for HDB flats. This contrast in pricing trends within the RCR region presents an intriguing insight. It suggests a potential consideration for consumers contemplating a downgrade from larger condominiums to smaller HDB flats, as they may encounter varying price dynamics within this region.")
+      )
+    })
   })
   
   observeEvent(input$TransactionByYearButton, {
     output$plotArea <- renderPlot({
       MeanTransactionByYear()
+    })
+
+    output$graph_desc <- renderUI({
+      tags$div(
+      p("The mean transaction price for HDB housing and condominiums show different trends over the years. For HDB properties, there is a general upward trend in the resale price from 2018 to 2022. Particularly, the significant increase in resale prices observed in 2021 potentially stemmed from intense bidding wars and substantial cash offers for popular flats during that period. price bidding wars. However, in 2022 the rate of increase was visibly lower compared to 2021, attributing to the property cooling measures implemented in September, 2022. On the other hand, the condominium transaction price fell significantly from 2018 to 2020, and rose back to a similar level from 2021 to 2022. This fluctuation in condominium prices could be influenced by various factors such as changes in market sentiment, the Covid pandemic, and government policies."),
+      p("As buyers, it is crucial to be aware of the regulatory environment within the real estate industry, as it significantly influences price movements over time. By understanding regulatory changes and their potential impact on the market, buyers can make more informed decisions and better anticipate price fluctuations. ")
+      )
     })
   })
 
@@ -335,58 +366,5 @@ shinyServer(function(input, output, session) {
     p <- meanPriceByTown("Condo", input$townSelectCondo, timeRange=input$time_range_selector)
     ggplotly(p, tooltip = c("y", "lower", "middle", "upper", "ymin", "ymax"))
   })
-
-  # ################################
-  # ######## AMENITIES TAB #########
-  # ################################
-  # bus_stop_copy = data.frame(bus_stop_data)
-  # bus_stop_copy$Description <- str_to_title((as.character(bus_stop_copy$Description)))
-  # mrt_copy = data.frame(mrt_data)
-  # mrt_copy$Name <- paste(mrt_copy$STN_NAME, mrt_copy$STN_NO, sep=", ")
-  # malls_copy = data.frame(mall_data)
-  # malls_copy <- malls_copy %>% rename(Longitude=LONGITUDE)
-  # malls_copy <- malls_copy %>% rename(Latitude=LATITUDE)
-  # hospitals_copy = data.frame(hospitals_data)
-  # hospitals_copy <- hospitals_copy %>% rename(Longitude=X)
-  # hospitals_copy <- hospitals_copy %>% rename(Latitude=Y)
-
-  # output$map <- renderLeaflet({
-  #   leaflet() %>%
-  #     addTiles() %>%
-  #     setView(lng = 103.850, lat = 1.290, zoom = 12)
-  # })
-
-  # observe({
-  #   # Clear existing markers each time the input changes
-  #   leafletProxy("map") %>% clearMarkers()
-
-  #   if (input$amenityType == "Bus Stops") {
-  #     addMarkersFor(bus_stop_copy, "Description","#FF5733")
-  #   } else if (input$amenityType == "MRT Stops") {
-  #     addMarkersFor(mrt_copy, "Name","#33CFFF")
-  #   } else if (input$amenityType == "Malls") {
-  #     addMarkersFor(malls_copy, "Mall.Name","#8E44AD")
-  #   } else if (input$amenityType == "Hospitals") {
-  #     addMarkersFor(hospitals_copy, "Name","#2ECC71")
-  #   } else if (input$amenityType == "All") {
-  #     # Add markers for each dataset in turn, with the appropriate popup content
-  #     addMarkersFor(bus_stop_copy, "Description","#FF5733")
-  #     addMarkersFor(mrt_copy, "Name","#33CFFF")
-  #     addMarkersFor(malls_copy, "Mall.Name","#8E44AD")
-  #     addMarkersFor(hospitals_copy, "Name","#2ECC71")
-  #   }
-  # })
-
-  # # Adjusted function to add markers for a given dataset with dynamic popup content
-  # addMarkersFor <- function(data, popupColumn, color) {
-  #   leafletProxy("map", data = data) %>%
-  #     addCircleMarkers(
-  #       lng = ~Longitude, lat = ~Latitude,
-  #       popup = ~get(popupColumn, envir = as.environment(data)),color = color,
-  #     fillColor = color,
-  #     fillOpacity = 0.8,
-  #     radius = 6
-  #     )
-  # }
 
 })
