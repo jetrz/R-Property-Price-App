@@ -125,18 +125,6 @@ newhdbdata <- hdbdata %>%
   ) %>%
   select(-lease_years, -lease_months)  # Remove the intermediate columns if they are no longer needed
 
-#Plot 5
-ResalePriceByRegionDensity <- function() {
-  ggplot(newhdbdata, aes(x = total_lease_years, fill = region)) +
-    geom_density(alpha = 0.5) +  # Density plot with transparency
-    labs(title = "Density of Resale Prices by Remaining Lease Duration and Region",
-         x = "Remaining Lease (Years)",
-         y = "Density",
-         fill = "Region") +
-    scale_fill_manual(values = c("blue", "green", "red")) +  # Custom color palette for regions
-    theme_minimal()  # Minimalist theme
-}
-
 # Extract years from 'remaining_lease' and calculate total lease duration in years
 hdbdata <- hdbdata %>%
   mutate(
